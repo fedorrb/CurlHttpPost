@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<FIELD name="J_SRVIP" type="STR" size="15" comm="ip адреса сервера" />
+	<FIELD name="J_SRVPORT" type="STR" size="5" comm="порт сервера" />
+	<FIELD name="J_SRVDL" type="UI1" comm="Затримка на шатдаун сокета сек" />
+	<FIELD name="J_SRVAT" type="UI1" comm="Кількість спроб читати відповідь" />
+	<FIELD name="J_SRVType" type="UI1" />
+	<DATASET name="B_SvrAdr" type="DS_BBASE" file="SOK:srvradrs.DT">
+		<COLUMN name="J_SRVIP" />
+		<COLUMN name="J_SRVPORT" />
+		<COLUMN name="J_SRVDL" />
+		<COLUMN name="J_SRVAT" />
+		<COLUMN name="J_SRVType" />
+	</DATASET>
+</STAYRESOURCE>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<INCLUDE file="SERVERADDR.XME" />
+	<DEFINE name="FLD1" value="4001" />
+	<DEFINE name="FLD2" value="4002" />
+	<DEFINE name="FLD3" value="4003" />
+	<DEFINE name="FLD4" value="4004" />
+	<DEFINE name="BUT1" value="6001" />
+	<DEFINE name="BUT2" value="6002" />
+	<DEFINE name="BUT3" value="6003" />
+	<DEFINE name="RBUT1" value="6011" />
+	<DEFINE name="RBUT2" value="6012" />
+	<FIELD name="TypeMask" type="UI4" />
+	<FRAME name="WndBusy" x="5" y="5" cx="245" cy="145" mode="MODIFIED" text="Триває обробка" center="true">
+		<STAYSTATIC x="39" y="11" cx="166" cy="20" mode="MODIFIED" text="З&apos;єднання з сервером." />
+		<STAYSTATIC x="42" y="40" cx="160" cy="48" mode="MODIFIED" text="Програма може деякий час не відповідати." />
+	</FRAME>
+	<FRAME name="WndSetAddr" x="63" y="131" cx="326" cy="219" mode="MODIFIED" text="Настройка адреси сервера" center="true">
+		<STAYEDIT x="140" y="18" cx="161" cy="18" mode="MODIFIED" id="FLD1" source="J_SRVIP" />
+		<STAYEDIT x="140" y="41" cx="161" cy="18" mode="MODIFIED" id="FLD2" source="J_SRVPORT" />
+		<STAYBUTTON x="92" y="142" cx="142" cy="24" mode="CLICKED" id="BUT1" text="&quot;Enter&quot; Підтвердити" />
+		<STAYSTATIC x="22" y="18" cx="45" cy="18" mode="NORMAL" text="IP:" />
+		<STAYSTATIC x="22" y="41" cx="45" cy="18" mode="NORMAL" text="Порт:" />
+		<STAYBUTTON x="92" y="112" cx="142" cy="24" mode="CLICKED" id="BUT2" text="Тест" />
+		<STAYBUTTON x="13" y="167" cx="300" cy="20" mode="HIDDEN" id="BUT3" text="Встановити час очікування відповіді" />
+		<STAYRADIO x="17" y="62" cx="295" cy="20" mode="MODIFIED" id="RBUT1" text="Алгоритм передачі для поганого зв&apos;язку" source="TypeMask" mask="0" />
+		<STAYRADIO x="17" y="86" cx="296" cy="20" mode="MODIFIED" id="RBUT2" text="Алгоритм передачі для доброго зв&apos;язку" source="TypeMask" mask="1" />
+	</FRAME>
+</STAYRESOURCE>

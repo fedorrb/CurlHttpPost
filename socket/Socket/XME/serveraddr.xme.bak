@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<FIELD name="J_SRVIP" type="STR" size="15" comm="ip адреса сервера" />
+	<FIELD name="J_SRVPORT" type="STR" size="5" comm="порт сервера" />
+	<FIELD name="J_SRVDL" type="UI1" comm="Затримка на шатдаун сокета сек" />
+	<FIELD name="J_SRVAT" type="UI1" comm="Кількість спроб читати відповідь" />
+	<FIELD name="J_CODE" type="UI2" comm="Код повідомлення" />
+	<FIELD name="J_WAITTIME" type="UI1" comm="час очікування" />
+	<FIELD name="J_REALTIME" type="UI1" comm="час очікування успішної посилки" />
+	<FIELD name="J_DATE" type="UI1" comm="Дата" />
+	<DATASET name="B_SvrAdr" type="DS_BBASE" file="SOK:srvradrs.DT">
+		<COLUMN name="J_SRVIP" />
+		<COLUMN name="J_SRVPORT" />
+		<COLUMN name="J_SRVDL" />
+		<COLUMN name="J_SRVAT" />
+	</DATASET>
+	<DATASET name="B_WaitTime" type="DS_BBASE" file="SOK:waittime.DT">
+		<INDEX name="1">
+			<KEY name="J_CODE" />
+		</INDEX>
+		<COLUMN name="J_CODE" />
+		<COLUMN name="J_WAITTIME" />
+		<COLUMN name="B_WT_RES" />
+	</DATASET>
+	<DATASET name="B_WT_RES" type="DS_BBASE">
+		<INDEX name="1" dupl="true">
+			<KEY name="J_DATE" />
+		</INDEX>
+		<COLUMN name="J_REALTIME" />
+		<COLUMN name="J_DATE" />
+	</DATASET>
+</STAYRESOURCE>
