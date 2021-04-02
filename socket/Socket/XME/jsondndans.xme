@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<FIELD name="RS_Ver" type="UI1" comm="Версия формата обмена" />
+	<FIELD name="RS_State" type="UI2" comm="Код состояния" />
+	<FIELD name="RS_Answer" type="I2" comm="Код ответа" />
+	<FIELD name="RS_Message" type="STR" size="250" comm="Сообщение о ошибке" />	
+	<FIELD name="RS_Raj" type="UI2" comm="Номер района" />
+	<FIELD name="RS_Nls" type="UI4" comm="Номер лицевого" />	
+	<FIELD name="RS_PrntSName" type="STR" size="25" comm="Фамилия заявителя" />
+	<FIELD name="RS_PrntMName" type="STR" size="25" comm="Имя заявителя" />
+	<FIELD name="RS_PrntLName" type="STR" size="25" comm="Отчество заявителя" />
+	<FIELD name="RS_PId" type="STR" size="10" comm="Налоговый номер заявителя" />
+	<FIELD name="RS_PasspType" type="UI1" comm="Тип паспорта заявителя 1 старый, 2 новый" />
+	<FIELD name="RS_PaspSN" type="STR" size="25" comm="Серия Номер паспорта" />
+	<FIELD name="RS_PaspDt" type="STAYDATE" comm="Дата выдачи паспорта" />	
+	<FIELD name="RS_BirthDtP" type="STAYDATE" comm="Дата рождения заявителя" />
+	<FIELD name="RS_ChldSName" type="STR" size="25" comm="Фамилия ребенка" />
+	<FIELD name="RS_ChldMName" type="STR" size="25" comm="Имя ребенка" />
+	<FIELD name="RS_ChldLName" type="STR" size="25" comm="Отчество ребенка" />
+	<FIELD name="RS_BirthDtC" type="STAYDATE" comm="Дата рождения ребенка" />
+	<FIELD name="RS_SvidSN" type="STR" size="25" comm="Серия номер свидетельства о рождении ребенка" />
+	<FIELD name="RS_SvidDt" type="STAYDATE" comm="Дата выдачи свидет о рожден" />
+	<FIELD name="RS_Insp" type="UI2" comm="Код инспектора" />
+	<FIELD name="RS_InspFio" type="STR" size="50" />	
+	<FIELD name="RS_CreateDt" type="STAYDATE" comm="Дата формирования запроса" />
+	<DATASET name="B_JsonDndAns" type="DS_BBASE" file="WORK:JSONDNDANS.DT">
+		<COLUMN name="RS_Ver" />
+		<COLUMN name="RS_State" />
+		<COLUMN name="RS_Answer" />
+		<COLUMN name="RS_Message" />
+		<COLUMN name="RS_Nls" />				
+		<COLUMN name="RS_Raj" />
+		<COLUMN name="RS_PrntSName" />
+		<COLUMN name="RS_PrntMName" />
+		<COLUMN name="RS_PrntLName" />
+		<COLUMN name="RS_PId" />
+		<COLUMN name="RS_PasspType" />
+		<COLUMN name="RS_PaspSN" />
+		<COLUMN name="RS_PaspDt" />
+		<COLUMN name="RS_BirthDtP" />
+		<COLUMN name="RS_ChldSName" />
+		<COLUMN name="RS_ChldMName" />
+		<COLUMN name="RS_ChldLName" />
+		<COLUMN name="RS_BirthDtC" />
+		<COLUMN name="RS_SvidSN" />
+		<COLUMN name="RS_SvidDt" />
+		<COLUMN name="RS_Insp" />
+		<COLUMN name="RS_InspFio" />
+		<COLUMN name="RS_CreateDt" />
+	</DATASET>
+</STAYRESOURCE>

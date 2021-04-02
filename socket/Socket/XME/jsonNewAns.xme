@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<INCLUDE file="jsondndans.XME" />
+	<FIELD name="RS_DBeg" type="STAYDATE" comm="дата &quot; З &quot;" />
+	<FIELD name="RS_DEnd" type="STAYDATE" comm="дата ПО" />
+	<FIELD name="RS_DOpiki" type="STAYDATE" comm="дата встановлення опікі" />
+	<FIELD name="RS_DZnat" type="STAYDATE" comm="дата зняття з обліку члена семьи" />
+	<FIELD name="RS_FamIgd" type="STR" size="25" comm="фамилия члена семьи" />
+	<FIELD name="RS_Ident" type="UI4" comm="Идентификатор записи" />
+	<FIELD name="RS_IdIgd" type="STR" size="10" comm="ИД код члена семьи" />
+	<FIELD name="RS_DataAktZap" type="STAYDATE" comm="Член Семьи дата Актового запису" />
+	<FIELD name="RS_IgdDtR" type="STAYDATE" comm="Дата рождения члена семьи" />
+	<FIELD name="RS_NomAktZap" type="STR" size="11" comm="Член Семьи номер Актового запису" />
+	<FIELD name="RS_IgdPaspSN" type="STR" size="25" comm="Член Семьи Серия Номер паспорта" />
+	<FIELD name="RS_IgdPspType" type="UI1" comm="Член Семьи Тип паспорта заявитея 1 старый, 2 новый 3 свід.про народж 4 інший докум" />
+	<FIELD name="RS_IgdUNZR" type="STR" size="13" comm="Член Семьи номер УНЗР" />
+	<FIELD name="RS_IgdVidan" type="STR" size="4" comm="Член Семьи кем выдан паспорт тип 2 образца 2016 года" />
+	<FIELD name="RS_ImaIgd" type="STR" size="25" comm="имя члена семьи" />
+	<FIELD name="RS_KatZ" type="UI1" comm="категория заявника 1 - заявник" />
+	<FIELD name="RS_Kfn" type="UI2" comm="код выплаты" />
+	<FIELD name="RS_NomIgd" type="UI1" comm="порядковій номер члена семьи" />
+	<FIELD name="RS_OtIgd" type="STR" size="25" comm="отчество члена семьи" />
+	<FIELD name="RS_Oznaka" type="UI1" comm="социальна ознака 1 - допомога" />
+	<FIELD name="RS_Psn" type="UI1" comm="причина зняття з обліку члена семьи" />
+	<FIELD name="RS_UNZR" type="STR" size="13" comm="номер УНЗР" />
+	<FIELD name="RS_Vidan" type="STR" size="4" comm="кем выдан паспорт тип 2 образца 2016 года" />
+	<DATASET name="B_DetiAns" type="DS_BBASE" file="WORK:JSONDETIANS.DT" comm="база ответа Допомога детям разные виды  NATA">
+		<COLUMN name="RS_Answer" />
+		<COLUMN name="RS_Message" />
+		<COLUMN name="RS_State" />
+		<COLUMN name="RS_Ident" />
+		<COLUMN name="RS_Insp" />
+		<COLUMN name="RS_InspFio" />
+		<COLUMN name="RS_CreateDt" />
+		<COLUMN name="RS_Nls" />
+		<COLUMN name="RS_Raj" />
+		<COLUMN name="RS_Oznaka" />
+		<COLUMN name="RS_Kfn" />
+		<COLUMN name="RS_DBeg" />
+		<COLUMN name="RS_DEnd" />
+		<COLUMN name="RS_KatZ" />
+		<COLUMN name="RS_PrntSName" />
+		<COLUMN name="RS_PrntMName" />
+		<COLUMN name="RS_PrntLName" />
+		<COLUMN name="RS_PId" />
+		<COLUMN name="RS_PasspType" />
+		<COLUMN name="RS_PaspSN" />
+		<COLUMN name="RS_PaspDt" />
+		<COLUMN name="RS_BirthDtP" />
+		<COLUMN name="RS_NomIgd" />
+		<COLUMN name="RS_FamIgd" />
+		<COLUMN name="RS_ImaIgd" />
+		<COLUMN name="RS_OtIgd" />
+		<COLUMN name="RS_IgdDtR" />
+		<COLUMN name="RS_IdIgd" />
+		<COLUMN name="RS_IgdPspType" />
+		<COLUMN name="RS_IgdPaspSN" />
+		<COLUMN name="RS_NomAktZap" />
+		<COLUMN name="RS_DataAktZap" />
+		<COLUMN name="RS_DOpiki" />
+		<COLUMN name="RS_DZnat" />
+		<COLUMN name="RS_Psn" />
+	</DATASET>
+	<DATASET name="B_PologiAns" type="DS_BBASE" file="WORK:JSONPOLOGIANS.DT" comm="база ответа Допомога по вагітності та пологам  NATA">
+		<COLUMN name="RS_Answer" />
+		<COLUMN name="RS_Message" />
+		<COLUMN name="RS_State" />
+		<COLUMN name="RS_Ident" />
+		<COLUMN name="RS_Insp" />
+		<COLUMN name="RS_InspFio" />
+		<COLUMN name="RS_CreateDt" />
+		<COLUMN name="RS_Nls" />
+		<COLUMN name="RS_Raj" />
+		<COLUMN name="RS_Oznaka" />
+		<COLUMN name="RS_Kfn" />
+		<COLUMN name="RS_DBeg" />
+		<COLUMN name="RS_DEnd" />
+		<COLUMN name="RS_KatZ" />
+		<COLUMN name="RS_PrntSName" />
+		<COLUMN name="RS_PrntMName" />
+		<COLUMN name="RS_PrntLName" />
+		<COLUMN name="RS_PId" />
+		<COLUMN name="RS_PasspType" />
+		<COLUMN name="RS_PaspSN" />
+		<COLUMN name="RS_PaspDt" />
+		<COLUMN name="RS_BirthDtP" />
+	</DATASET>
+	<DATASET name="B_StopAns" type="DS_BBASE" file="WORK:STOPANS.DT" comm="">
+		<COLUMN name="RS_Answer" />
+		<COLUMN name="RS_Message" />
+	</DATASET>	
+</STAYRESOURCE>

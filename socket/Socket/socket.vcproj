@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\WORK\ASOPDF10\SRC_F10\H;C:\STAY45new\Include;C:\socket\socket\socket;C:\socket\socket\socket\XME;C:\Stay45new\include\add;C:\Stay45new\include\sys;c:\SocketCurl\socket\Socket\LIB"
+				AdditionalIncludeDirectories="D:\WORK\ASOPDF10\SRC_F10\H;C:\STAY45new\Include;C:\socket\socket\socket;C:\socket\socket\socket\XME;C:\Stay45new\include\add;C:\Stay45new\include\sys;c:\SocketCurl\socket\Socket\LIB29"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FW_EXPORTS;_STAYW;IBPP_WINDOWS"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -71,7 +71,7 @@
 				OutputFile="d:\work\asopdsoc\admin\socket.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\STAY45NEW\lib;D:\WORK\ASOPDF10\SRC_F10\LIB;c:\SocketCurl\socket\Socket\LIB"
+				AdditionalLibraryDirectories="C:\STAY45NEW\lib;D:\WORK\ASOPDF10\SRC_F10\LIB;c:\SocketCurl\socket\Socket\LIB29"
 				IgnoreDefaultLibraryNames="libcd.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/socket.pdb"

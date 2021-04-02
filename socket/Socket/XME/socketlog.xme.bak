@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<FIELD name="Log_Date" type="STAYDATE" />
+	<FIELD name="Log_Time" type="STAYTIME" />
+	<FIELD name="Log_Raj" type="UI2" />
+	<FIELD name="Log_Direct" type="UI1" />
+	<FIELD name="Log_Id" type="UI2" />
+	<FIELD name="Log_Text" type="STR" size="255" />
+	<DATASET name="B_Log" type="DS_BBASE" file="WORK:log_socket.DT">
+		<INDEX name="1" dupl="true">
+			<KEY name="Log_Date" />
+			<KEY name="Log_Time" />
+			<KEY name="Log_Raj" />
+		</INDEX>
+		<COLUMN name="Log_Date" />
+		<COLUMN name="Log_Time" />
+		<COLUMN name="Log_Raj" />
+		<COLUMN name="Log_Direct" />
+		<COLUMN name="B_Log_Txt" />
+	</DATASET>
+	<DATASET name="B_Log_Txt" type="DS_BBASE">
+		<COLUMN name="Log_Id" />
+		<COLUMN name="Log_Text" />
+	</DATASET>
+</STAYRESOURCE>

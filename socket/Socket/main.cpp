@@ -11,6 +11,8 @@
 #include <string>
 #include <exception>
 #include <stdio.h>
+#include <sys/stat.h> //curl send file
+#include <fcntl.h>//curl send file
 
 //#include <cstdlib>
 
@@ -29,7 +31,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <winbase.h>
-#define LIBCURL_VERSION_NUM 0x071303
+//#define LIBCURL_VERSION_NUM 0x071303
 #define CURL_STATICLIB
 #include <curl/curl.h>
 #pragma comment(lib, "libcurl.lib" )
@@ -50,7 +52,8 @@ int SaveLogFile (vector<string> & messageToSend, int direction);
 const int MAXMESSAGE = 131072; //#define DEFAULT_BUFLEN 1024 in socketcl.h
 const unsigned long MAXLOGFILESIZE = 20000000; //20Mb
 void replaceAll(std::string& str, const std::string& from, const std::string& to);
-int CUrlHttpClient(string ip, string port, vector<string>& messageToSend, vector<string>& receivedMessage);
+int CUrlSendMessage(string ip, string port, vector<string>& messageToSend, vector<string>& receivedMessage);
+int CUrlSendFile(string ip, string port, vector<string>& receivedMessage);
 bool LoadJsonFromFile(const char* in_filename, vector<string>& messageToSend);
 void GetSystemInfo();
 void GetAddress(string& srvrIP, string& srvrPort);
@@ -58,6 +61,42 @@ void GetAddress(string& srvrIP, string& srvrPort);
 USETOOLS;USESHELL;USETECH;
 
 ASOPDMAIN("Messaging with the server");
+
+struct WriteThis {
+  const char *readptr;
+  size_t sizeleft;
+};
+ 
+static size_t read_callback(char *dest, size_t size, size_t nmemb, void *userp)
+{
+  struct WriteThis *wt = (struct WriteThis *)userp;
+  size_t buffer_size = size*nmemb;
+ 
+  if(wt->sizeleft) {
+    /* copy as much as possible from the source to the destination */ 
+    size_t copy_this_much = wt->sizeleft;
+    if(copy_this_much > buffer_size)
+      copy_this_much = buffer_size;
+    memcpy(dest, wt->readptr, copy_this_much);
+ 
+    wt->readptr += copy_this_much;
+    wt->sizeleft -= copy_this_much;
+    return copy_this_much; /* we copied this many bytes */ 
+  }
+ 
+  return 0; /* no more data left to deliver */ 
+}
+
+size_t readFileCallback(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+  FILE *readhere = (FILE *)userdata;
+  curl_off_t nread;
+  /* copy as much data as possible into the 'ptr' buffer, but no more than
+     'size' * 'nmemb' bytes! */
+  size_t retcode = fread(ptr, size, nmemb, readhere);
+  nread = (curl_off_t)retcode;
+  return retcode;
+}
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -169,6 +208,13 @@ int SaveLogFile (vector<string> & messageToSend, int direction) {
 	StayDate dtNow = GetSysDate();
 	StayTime tmNow = GetSysTime();
 
+	int code = 0;
+	try {
+		code = std::atoi(glb.reqCode.c_str());
+	} catch (...) {
+		code = 0;
+	}
+
 	vector<string> splitLines;
 	splitLines.clear();
 	Normalize *Norm = new Normalize();
@@ -181,7 +227,7 @@ int SaveLogFile (vector<string> & messageToSend, int direction) {
 
 	unsigned long fileSize = 0;
 
-	StrForm(buf, MAXMESSAGE, "\r\n%10v %5t %3s code:%s", dtNow, tmNow, buf_inout, glb.reqCode);
+	StrForm(buf, MAXMESSAGE, "\r\n%10v %5t %3s code:%d\r\n", dtNow, tmNow, buf_inout, code);
 	StayFile logFile;
 	int len = StrLen(buf);
 	StrForm(name_log_file, 256, "SOK:socket%u.log", glb.insCode);
@@ -248,7 +294,8 @@ int STAYPROC BOSBusyForm( StayEvent s, StayEvent id )
 		if (B_SvrAdr->bs)
 			Close(B_SvrAdr);
 		if (LoadJsonFromFile(glb.fileNameIn.c_str(), messageToSend)) {
-			if (CUrlHttpClient(srvrIP, srvrPort, messageToSend, receivedLines)) {
+			if (CUrlSendMessage(srvrIP, srvrPort, messageToSend, receivedLines)) {
+			//if (CUrlSendFile(srvrIP, srvrPort, receivedLines)) {
 				//error
 				SaveJsonToFile(glb.fileNameOut.c_str(), -1, receivedLines);
 				SaveLogFile(messageToSend, 0);
@@ -325,7 +372,7 @@ int STAYPROC BOSWSetAddr( StayEvent s, StayEvent id )
 			srvrIP = J_SRVIP;
 			srvrPort = J_SRVPORT;
 			textToSend.push_back(strJsonIn);
-			if (CUrlHttpClient(srvrIP, srvrPort, textToSend, receivedLines)) {
+			if (CUrlSendMessage(srvrIP, srvrPort, textToSend, receivedLines)) {
 				//if(receivedLines.size())
 					//errorStr = receivedLines[0];
 				receivedLines.push_back(".    IP = " + srvrIP + ", PORT = " + srvrPort);
@@ -365,38 +412,263 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
     }
 }
 
-int CUrlHttpClient(string ip, string port, vector<string>& messageToSend, vector<string>& receivedMessage)
+int CUrlSendMessage(string ip, string port, vector<string>& messageToSend, vector<string>& receivedMessage)
 {
 	Singleton &glb = Singleton::getInstance();
 	receivedMessage.clear();
-	CURL* curl;
+
+	string target = ip + ":" + port + "/api/asopd/v2/r/" + glb.reqCode;
+	std::string readBuffer; //answer
+	std::string readHeader; //answer
+	std::string jsonstr = ""; //post data
+	for (std::vector<string>::iterator it = messageToSend.begin() ; it != messageToSend.end(); ++it)
+		jsonstr += (*it);//vector to string
+
+	int postSize = jsonstr.size();
+	const int bufSize = 64;
+	char buf1[bufSize]; //for headers
+	memset(buf1, 0, bufSize);
+
+	const int errBufSize = 255;
+	char errBuf[errBufSize]; //for error message
+	memset(errBuf, 0, errBufSize);
+
+	CURL *curl;
 	CURLcode res;
-	int intPort = 1871;
-	try {
-		intPort = std::atoi(port.c_str());
-	} catch (...) {
-		intPort = 1871;
+	struct curl_slist *headers;
+	headers = NULL;
+
+	struct WriteThis wt; //post data
+
+	wt.readptr = jsonstr.c_str();
+	wt.sizeleft = strlen(jsonstr.c_str());
+
+	res = curl_global_init(CURL_GLOBAL_DEFAULT);	// In windows, this will init the winsock stuff
+	if(res != CURLE_OK) {
+		StrForm(errBuf, 255, "curl_global_init() failed: %s", curl_easy_strerror(res));
+		readBuffer = errBuf;
+		return EXIT_FAILURE;
 	}
-	string target = ip + "/api/asopd/v2/r/" + glb.reqCode;
-	// In windows, this will init the winsock stuff 
-	curl_global_init(CURL_GLOBAL_ALL);
-	std::string readBuffer;
-	std::string jsonstr = messageToSend[0];
 	curl = curl_easy_init();
 	if(curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, target.c_str());
-		curl_easy_setopt(curl, CURLOPT_PORT, intPort);
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonstr.c_str());
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		StrForm(buf1, 64, "MD5: %s", glb.md5.c_str());
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CpuCore :%d", glb.dwNumberOfProcessors);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "OSMajorVer :%d", glb.dwMajorVersion);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "OSMinorVer :%d", glb.dwMinorVersion);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "RamSize :%d", glb.dwRamSize);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CurScrWidth :%d", glb.screenX);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CurScrHeight :%d", glb.screenY);
+		headers = curl_slist_append(headers, buf1);
+
+		curl_easy_setopt(curl, CURLOPT_URL, target.c_str());		
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);//specify we want to POST data		
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);//use our own read function		
+		curl_easy_setopt(curl, CURLOPT_READDATA, &wt);//pointer to pass to our read function
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);//get verbose debug output
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 45);//FRB
+		/*
+		If you use POST to a HTTP 1.1 server, you can send data without knowing
+		the size before starting the POST if you use chunked encoding. You
+		enable this by adding a header like "Transfer-Encoding: chunked" with
+		CURLOPT_HTTPHEADER. With HTTP 1.0 or without chunked transfer, you must
+		specify the size in the request.
+		*/ 
+#ifdef USE_CHUNKED
+		{
+			struct curl_slist *chunk = NULL;
+			chunk = curl_slist_append(chunk, "Transfer-Encoding: chunked");
+			res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+			/* use curl_slist_free_all() after the *perform() call to free this
+			list again */ 
+		}
+#else
+		/* Set the expected POST size. If you want to POST large amounts of data,
+		consider CURLOPT_POSTFIELDSIZE_LARGE */ 
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)wt.sizeleft);
+#endif
+
+#define	DISABLE_EXPECT //FRB
+#ifdef DISABLE_EXPECT
+		/*
+		Using POST with HTTP 1.1 implies the use of a "Expect: 100-continue"
+		header.  You can disable this header with CURLOPT_HTTPHEADER as usual.
+		NOTE: if you want chunked transfer too, you need to combine these two
+		since you can only set one list of headers with CURLOPT_HTTPHEADER. */ 
+
+		/* A less good option would be to enforce HTTP 1.0, but that might also
+		have other implications. */ 
+		{
+			struct curl_slist *chunk = NULL;
+
+			chunk = curl_slist_append(chunk, "Expect:");
+			res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+			/* use curl_slist_free_all() after the *perform() call to free this
+			list again */ 
+		}
+#endif
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-		res = curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-		MsgBox("",readBuffer.c_str());
+
+		res = curl_easy_perform(curl);// Perform the request, res will get the return code
+		if(res != CURLE_OK) {
+			StrForm(errBuf, 255, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
+			readBuffer = errBuf;
+			return EXIT_FAILURE;
+		} else {
+			char *ct;
+			res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+			if(ct) {
+				readHeader = ct;
+			}
+			long response_code = 0;
+			res = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+			if(response_code == 200)
+				MsgBox("","");
+		}
+
 		receivedMessage.push_back(readBuffer);
+		curl_easy_cleanup(curl);
 	}
 	curl_global_cleanup();
-	return 0;
+
+	return EXIT_SUCCESS;
+}
+
+int CUrlSendFile(string ip, string port, vector<string>& receivedMessage)
+{
+	Singleton &glb = Singleton::getInstance();
+	receivedMessage.clear();
+
+	string target = ip + ":" + port + "/api/asopd/v2/r/" + glb.reqCode;
+	std::string readBuffer; //answer
+	std::string readHeader; //answer
+
+	const int bufSize = 64;
+	char buf1[bufSize]; //for headers
+	memset(buf1, 0, bufSize);
+
+	const int errBufSize = 255;
+	char errBuf[errBufSize]; //for error message
+	memset(errBuf, 0, errBufSize);
+
+	CURL *curl;
+	CURLcode res;
+	struct curl_slist *headers;
+	headers = NULL;
+
+	struct stat file_info;
+	char pathInFile[MAX_PATH];
+	FullPath(pathInFile, glb.fileNameIn.c_str());
+	FILE *file = fopen(pathInFile, "rb");
+	if(!file) {
+		readBuffer = "Cannot open file:";
+		return EXIT_FAILURE;
+	}
+	/* to get the file size */ 
+	if(fstat(fileno(file), &file_info) != 0)
+		return 1; /* can't continue */ 
+
+	res = curl_global_init(CURL_GLOBAL_DEFAULT);	// In windows, this will init the winsock stuff
+	if(res != CURLE_OK) {
+		StrForm(errBuf, 255, "curl_global_init() failed: %s", curl_easy_strerror(res));
+		readBuffer = errBuf;
+		return EXIT_FAILURE;
+	}
+	curl = curl_easy_init();
+	if(curl) {
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		StrForm(buf1, 64, "MD5: %s", glb.md5.c_str());
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CpuCore :%d", glb.dwNumberOfProcessors);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "OSMajorVer :%d", glb.dwMajorVersion);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "OSMinorVer :%d", glb.dwMinorVersion);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "RamSize :%d", glb.dwRamSize);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CurScrWidth :%d", glb.screenX);
+		headers = curl_slist_append(headers, buf1);
+		StrForm(buf1, 64, "CurScrHeight :%d", glb.screenY);
+		headers = curl_slist_append(headers, buf1);
+
+		curl_easy_setopt(curl, CURLOPT_URL, target.c_str());		
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);//specify we want to POST data		
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, readFileCallback);
+		curl_easy_setopt(curl, CURLOPT_READDATA, (void *)file);
+		/* and give the size of the upload (optional) */ 
+		curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);//get verbose debug output
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		//curl_easy_setopt(curl, CURLOPT_TIMEOUT, 45);//FRB
+		/*
+		If you use POST to a HTTP 1.1 server, you can send data without knowing
+		the size before starting the POST if you use chunked encoding. You
+		enable this by adding a header like "Transfer-Encoding: chunked" with
+		CURLOPT_HTTPHEADER. With HTTP 1.0 or without chunked transfer, you must
+		specify the size in the request.
+		*/ 
+#ifdef USE_CHUNKED
+		{
+			struct curl_slist *chunk = NULL;
+			chunk = curl_slist_append(chunk, "Transfer-Encoding: chunked");
+			res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+			/* use curl_slist_free_all() after the *perform() call to free this
+			list again */ 
+		}
+#else
+#endif
+
+#define	DISABLE_EXPECT //FRB
+#ifdef DISABLE_EXPECT
+		/*
+		Using POST with HTTP 1.1 implies the use of a "Expect: 100-continue"
+		header.  You can disable this header with CURLOPT_HTTPHEADER as usual.
+		NOTE: if you want chunked transfer too, you need to combine these two
+		since you can only set one list of headers with CURLOPT_HTTPHEADER. */ 
+
+		/* A less good option would be to enforce HTTP 1.0, but that might also
+		have other implications. */ 
+		{
+			struct curl_slist *chunk = NULL;
+
+			chunk = curl_slist_append(chunk, "Expect:");
+			res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+			/* use curl_slist_free_all() after the *perform() call to free this
+			list again */ 
+		}
+#endif
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+		res = curl_easy_perform(curl);// Perform the request, res will get the return code
+		if(res != CURLE_OK) {
+			StrForm(errBuf, 255, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
+			readBuffer = errBuf;
+			return EXIT_FAILURE;
+		} else {
+			char *ct;
+			res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+			if(ct) {
+				readHeader = ct;
+			}
+		}
+
+		receivedMessage.push_back(readBuffer);
+		curl_easy_cleanup(curl);
+	}
+	curl_global_cleanup();
+	fclose(file);
+
+	return EXIT_SUCCESS;
 }
 
 void GetSystemInfo() {

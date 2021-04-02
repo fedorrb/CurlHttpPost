@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<STAYRESOURCE version="2.0">
+	<INCLUDE file="jsondnd.XME" />
+	<FIELD name="RQ_DBeg" type="STAYDATE" comm="дата &quot; З &quot;" />
+	<FIELD name="RQ_DEnd" type="STAYDATE" comm="дата ПО" />
+	<FIELD name="RQ_DOpiki" type="STAYDATE" comm="дата встановлення опікі" />
+	<FIELD name="RQ_DZnat" type="STAYDATE" comm="дата зняття з обліку члена семьи" />
+	<FIELD name="RQ_FamIgd" type="STR" size="25" comm="фамилия члена семьи" />
+	<FIELD name="RQ_IdIgd" type="STR" size="10" comm="ИД код члена семьи" />
+	<FIELD name="RQ_DataAktZap" type="STAYDATE" comm="Член Семьи дата Актового запису" />
+	<FIELD name="RQ_IgdDtR" type="STAYDATE" comm="Дата рождения члена семьи" />
+	<FIELD name="RQ_NomAktZap" type="STR" size="11" comm="Член Семьи номер Актового запису" />
+	<FIELD name="RQ_IgdPaspSN" type="STR" size="25" comm="Член Семьи Серия Номер паспорта" />
+	<FIELD name="RQ_IgdPspType" type="UI1" comm="Член Семьи Тип паспорта заявитея 1 старый, 2 новый 3 свід.про народж 4 інший докум" />
+	<FIELD name="RQ_IgdUNZR" type="STR" size="13" comm="Член Семьи номер УНЗР" />
+	<FIELD name="RQ_IgdVidan" type="STR" size="4" comm="Член Семьи кем выдан паспорт тип 2 образца 2016 года" />
+	<FIELD name="RQ_ImaIgd" type="STR" size="25" comm="имя члена семьи" />
+	<FIELD name="RQ_KatZ" type="UI1" comm="категория заявника 1 - заявник" />
+	<FIELD name="RQ_Kfn" type="UI2" comm="код выплаты" />
+	<FIELD name="RQ_NomIgd" type="UI1" comm="порядковій номер члена семьи" />
+	<FIELD name="RQ_OtIgd" type="STR" size="25" comm="отчество члена семьи" />
+	<FIELD name="RQ_Oznaka" type="UI1" comm="социальна ознака 1 - допомога" />
+	<FIELD name="RQ_Psn" type="UI1" comm="причина зняття з обліку члена семьи" />
+	<FIELD name="RQ_UNZR" type="STR" size="13" comm="номер УНЗР" />
+	<FIELD name="RQ_Vidan" type="STR" size="4" comm="кем выдан паспорт тип 2 образца 2016 года" />
+	<DATASET name="B_DetiReq" type="DS_BBASE" file="WORK:JSONDETI.DT" comm="база запроса Допомога детям разные виды  NATA">
+		<COLUMN name="RQ_Ident" />
+		<COLUMN name="RQ_State" />
+		<COLUMN name="RQ_Insp" />
+		<COLUMN name="RQ_InspFio" />
+		<COLUMN name="RQ_CreateDt" />
+		<COLUMN name="RQ_Nls" />
+		<COLUMN name="RQ_Raj" />
+		<COLUMN name="RQ_Oznaka" />
+		<COLUMN name="RQ_Kfn" />
+		<COLUMN name="RQ_DBeg" />
+		<COLUMN name="RQ_DEnd" />
+		<COLUMN name="RQ_KatZ" />
+		<COLUMN name="RQ_PrntSName" />
+		<COLUMN name="RQ_PrntMName" />
+		<COLUMN name="RQ_PrntLName" />
+		<COLUMN name="RQ_PId" />
+		<COLUMN name="RQ_PasspType" />
+		<COLUMN name="RQ_PaspSN" />
+		<COLUMN name="RQ_PaspDt" />
+		<COLUMN name="RQ_BirthDtP" />
+		<COLUMN name="RQ_NomIgd" />
+		<COLUMN name="RQ_FamIgd" />
+		<COLUMN name="RQ_ImaIgd" />
+		<COLUMN name="RQ_OtIgd" />
+		<COLUMN name="RQ_IgdDtR" />
+		<COLUMN name="RQ_IdIgd" />
+		<COLUMN name="RQ_IgdPspType" />
+		<COLUMN name="RQ_IgdPaspSN" />
+		<COLUMN name="RQ_NomAktZap" />
+		<COLUMN name="RQ_DataAktZap" />
+		<COLUMN name="RQ_DOpiki" />
+		<COLUMN name="RQ_DZnat" />
+		<COLUMN name="RQ_Psn" />
+	</DATASET>
+	<DATASET name="B_PologiReq" type="DS_BBASE" file="WORK:JSONPOLOGI.DT" comm="база запроса Допомога по вагітності та пологам  NATA">
+		<COLUMN name="RQ_Ident" />
+		<COLUMN name="RQ_State" />
+		<COLUMN name="RQ_Insp" />
+		<COLUMN name="RQ_InspFio" />
+		<COLUMN name="RQ_CreateDt" />
+		<COLUMN name="RQ_Nls" />
+		<COLUMN name="RQ_Raj" />
+		<COLUMN name="RQ_Oznaka" />
+		<COLUMN name="RQ_Kfn" />
+		<COLUMN name="RQ_DBeg" />
+		<COLUMN name="RQ_DEnd" />
+		<COLUMN name="RQ_KatZ" />
+		<COLUMN name="RQ_PrntSName" />
+		<COLUMN name="RQ_PrntMName" />
+		<COLUMN name="RQ_PrntLName" />
+		<COLUMN name="RQ_PId" />
+		<COLUMN name="RQ_PasspType" />
+		<COLUMN name="RQ_PaspSN" />
+		<COLUMN name="RQ_PaspDt" />
+		<COLUMN name="RQ_BirthDtP" />
+	</DATASET>
+	<DATASET name="B_Stop" type="DS_BBASE" file="WORK:STOP.DT" comm="база запроса по припиненим і переїхавщим">
+		<COLUMN name="RQ_Ident" />
+		<COLUMN name="RQ_State" />
+		<COLUMN name="RQ_Insp" />
+		<COLUMN name="RQ_InspFio" />
+		<COLUMN name="RQ_CreateDt" />
+		<COLUMN name="RQ_Nls" />
+		<COLUMN name="RQ_Raj" />
+		<COLUMN name="RQ_Oznaka" />
+		<COLUMN name="RQ_Kfn" />
+		<COLUMN name="RQ_DBeg" />
+		<COLUMN name="RQ_DEnd" />
+		<COLUMN name="RQ_Psn" />
+	</DATASET>
+</STAYRESOURCE>
